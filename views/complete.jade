@@ -1,0 +1,53 @@
+doctype html
+html(lang="en")
+	head
+		title= "Imtech uploader"
+		meta(HTTP-EQUIV="Pragma" CONTENT="no-cache")
+		link(href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin,latin-ext" rel="stylesheet")
+		link(href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet")
+		link(rel="stylesheet" type="text/css" href="/styles/style.css")
+		script(src="https://code.jquery.com/jquery-2.1.3.min.js")
+	
+	body
+	
+		div(class="sign-up" )
+			h1.sign-up-title 
+				i.fa.fa-cloud-upload
+				span  ImlinkUp
+			
+			h2.green Transfer Complete 
+				i.fa.fa-check
+			br
+			
+			div.underline 
+				span Name  
+				span.mute #{upload.name}
+			br
+			
+			div.underline 
+				span Company 
+				span.mute #{upload.company}
+			br
+			
+			div.underline 
+				span Job # 
+				span.mute #{upload.job}
+			br
+			
+			div.underline 
+				span Comments 
+			p.mute #{upload.comments}
+			
+			br
+			h3.underline Uploaded Files
+			ul
+				each file in upload.files
+					li.underline 
+						i.fa.fa-file  
+						span  #{file.filename}
+			br
+			a.button.big.button-block(href="/" style="width:90%") Send more files
+
+			
+			
+		
