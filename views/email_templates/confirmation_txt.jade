@@ -1,20 +1,14 @@
 | Your Upload Has Completed!
 | ===============================================================================
-|
-| #{result.message}
-|
-| Name: #{result.name}
-| Company: #{result.company}
-| Job #: #{result.job}
-| Comments: #{result.comments}
-|
-| #{result.files.length} total files uploaded
-|
-  each file in result.files
-    |  -#{file.fileName} - #{file.size}
-|
+| Name: #{record.name}
+| Company: #{record.company}
+| Job #: #{record.job}
+| Comments: #{record.comments}
+| #{record.files.length} total files uploaded
+each file, idx in record.files
+  | #{idx}.- #{file.filename} - #{file.size}
+| -------------------------------------------------------------------------------
 | If you need help or have any questions, please email us at
 | support@imtehcgraphics.com
-|
 | -------------------------------------------------------------------------------
 | © ImtechGraphics, 2015 - 545 DELL ROAD, CARLSTADT, NJ 07072 - Call 800.468.3240

@@ -15,27 +15,36 @@ html(lang="en")
       h2.green Transfer Complete
         i.fa.fa-check
       br
+
       div.underline
         span Name
         span.mute  #{upload.name}
       br
+
       div.underline
         span Company
         span.mute  #{upload.company}
       br
+
       div.underline
         span Job #
         span.mute  #{upload.job}
       br
+
       div.underline
         span Comments
       span.mute  #{upload.comments}
+
       br
+
       h3.underline Uploaded Files
+
       ul
         each file in upload.files
-      li.underline
-        i.fa.fa-file(style="float:left")
-          span  #{file.filename}
+          li.underline
+            i.fa.fa-file(style="float:left")
+            span  #{file.filename}
+
       br
+
       a.button.big.button-block(href="/" style="width:90%") Send more files

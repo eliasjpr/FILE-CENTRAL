@@ -4,144 +4,147 @@
  * @description :: Server-side logic for uploading files
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
-var util = require('util');
 var uuid = require('node-uuid');
-var mailgun = require('mailgun-js')({
-	apiKey: "key-4b3912e74966f8f1259596dfb2924fa6",
-	domain: "mailgun.imtechgraphics.com"
-});
-
 
 module.exports = {
-	// Send  verification email
-	verify: function(req, res) {
+  // Send  verification email
+  verify: function (req, res) {
 
-		// Save sending user
-		Seal.verify({
-				email: req.body['email']
-			},
-			function(err, record) {
-				if (err) return res.serverError(err);
+    // Create Seal for this user
+    Seal.create({email: req.body['email']}, function (err, record) {
+      if (err) {
+        return res.serverError(err);
+      }
 
-				console.log(record)
-			});
-	},
+      EmailService.sendVerificationEmail(record, function (err, data) {
+        res.redirect('uploader/index');
+      });
 
-	// Display upload form
-	index: function(req, res) {
+    });
 
-		// Check if incomming code is valid req.param('repo')
+  },
 
-		res.set(200, 'Cache-Control', 'no-cache');
-		res.view('uploader', {
-			sessionUUID: uuid.v4(),
-			code: req.param('code') || ""
-		});
+  // Display upload form
+  index : function (req, res) {
 
-	},
+    // Check if incomming code is valid req.param('code')
+    res.set(200, 'Cache-Control', 'no-cache');
 
-	// Upload File
-	upload: function(req, res) {
+    res.view('uploader', {
+      sessionUUID: uuid.v4(),
+      code       : req.param('code') || ""
+    });
 
-		// Validate verification code
-		var sealer,
-			code        = req.body['code'],
-			sessionUUID = req.body['sessionUUID'];
+  },
 
-		Seal.findOne({
-			code: code
-		}).exec(function(err, seal) {
+  // Upload File
+  upload: function (req, res) {
 
-			sealer = seal;
+    // Validate verification code
+    var sealer,
+        code = req.body['code'],
+        sessionUUID = req.body['sessionUUID'];
 
-			if (err) return res.serverError(err);
+    Seal.findOne({
+      code: code
+    }).exec(function (err, seal) {
 
-			if (parseInt(seal.codeCount) > 0) {
-				res.view('homepage', {
-					msg: 'The code ' + code + ' has already been used.'
-				});
+      if (err) {
+        return res.serverError(err);
+      }
 
-			} else {
-				var startTime = (new Date()).getTime(),
-					endTime,
-					downloadSize,
-					speedBps,
-					speedKbps,
-					speedMbps;
+      sealer = seal;
+      var codeUsage = parseInt(seal.codeCount);
 
+      if (codeUsage > 0) {
+        console.log("Code ", code , " has been used ", codeUsage, " times.");
 
-				req.file('files').upload({
-						dirname: '/var/tmp/',
-						maxBytes: 20000000000,
-						onProgress: function(progress) {
+        res.view('homepage', { msg: 'The code ' + code + ' has already been used.' });
 
-							//console.log(this)
-							endTime   = (new Date()).getTime();
-							duration  = Math.round((endTime - startTime) / 1000);
-							speedBps  = Math.round(progress.written / duration);
-							speedKbps = (speedBps / 1024).toFixed(2);
-							speedMbps = (speedKbps / 1024).toFixed(2);
+      } else {
 
-							// Todo: Emit messages to specific session
-							sails.sockets.blast(sessionUUID, {
-								total         : Math.floor((progress.written / progress.stream.byteCount) * 100),
-								duration      : duration,
-								speedKbps     : speedKbps,
-								speedMbps     : speedMbps,
-								totalSize     : progress.stream.byteCount,
-								totalUploaded : progress.written,
-								fileName      : progress.name
-							});
-						}
-					},
-					function(err, files) {
-						if (err) return res.serverError(err);
+        var startTime = (new Date()).getTime(),
+            endTime,
+            duration,
+            speedBps,
+            speedKbps,
+            speedMbps;
 
-						// No errors continue
-						endTime       = (new Date()).getTime();
-						totalDuration = Math.round((endTime - startTime) / 1000);
+        req.file('files').upload({
+            dirName   : '/var/tmp/',
+            maxBytes  : 20000000000,
+            onProgress: function (progress) {
 
-						var result = {
-							name      : req.body['name'],
-							company   : req.body['company'],
-							job       : req.body['job'],
-							comments  : req.body['comments'],
-							message   : files.length + ' file(s) uploaded successfully!',
-							files     : files,
-							duration  : totalDuration,
-							speedKbps : speedKbps,
-							speedMbps : speedMbps,
-							sealedBy  : sealer.id
-						};
+              endTime = (new Date()).getTime();
+              duration = Math.round((endTime - startTime) / 1000);
+              speedBps = Math.round(progress.written / duration);
+              speedKbps = (speedBps / 1024).toFixed(2);
+              speedMbps = (speedKbps / 1024).toFixed(2);
 
-						// Create
-						Uploader.create(result, function(err, record) {
-							// Send email to user
-              var data = {
-								from    : 'support@imtechgraphics.com',
-								to      : sealer.email,
-								subject : 'ImlinkUp File Transfer confirmation',
-								text    : result.message
-							};
+              // Emiting messages to specific session sessionUUID
+              sails.sockets.blast(sessionUUID, {
+                total        : Math.floor((progress.written / progress.stream.byteCount) * 100),
+                duration     : duration,
+                speedKbps    : speedKbps,
+                speedMbps    : speedMbps,
+                totalSize    : progress.stream.byteCount,
+                totalUploaded: progress.written,
+                fileName     : progress.name
+              });
+            }
+          },
+          function (err, files) {
+            if (err) {
+              return res.serverError(err);
+            }
 
-							//Send Email
-							mailgun.messages().send(data, function(error, body) {
-								if (err) return res.serverError(err);
-							});
+            endTime = (new Date()).getTime();
 
-							// Update Seal
-							Seal.update({ code  : sealer.code, email : sealer.email }, { codeCount: 1 }, function(err, updated) {
-								if(err) res.serverError(err)
-							});
-						});
+            var totalDuration = Math.round((endTime - startTime) / 1000);
 
-						// Render complete screen
-						res.view('complete', {
-							upload: result
-						});
-					});
-			}
-		});
+            var newUpload = {
+              name     : req.body.name,
+              company  : req.body.company,
+              job      : req.body.job,
+              comments : req.body.comments,
+              message  : files.length + ' file(s) uploaded successfully!',
+              files    : files,
+              duration : totalDuration,
+              speedKbps: speedKbps,
+              speedMbps: speedMbps,
+              sealedBy : sealer
+            };
 
-	}
+            // Create
+            Uploader.create(newUpload, function (err, record) {
+
+              if (err) {
+                return res.serverError(err);
+              }
+
+              //Send Email
+              EmailService.sendConfirmationEmail(newUpload, function (err, record) {
+
+                if (err) {
+                  return res.serverError(err);
+                }
+
+                // Update Seal
+                Seal.update({
+                  code : newUpload.sealedBy.code,
+                  email: newUpload.sealedBy.email
+                }, {codeCount: 1}, function (err, sealer) {
+                  if (err) {
+                    return res.serverError(err);
+                  }
+
+                  // Render complete screen
+                  res.view('complete', {upload: newUpload}).end();
+                });
+              });
+            });
+          });
+      }
+    });
+  }
 };

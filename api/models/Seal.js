@@ -12,13 +12,13 @@ var mailgun = require('mailgun-js')({
 module.exports = {
 
   attributes: {
-    email: {
-      type: 'email',
+    email    : {
+      type    : 'email',
       required: true
     },
-    code: {
-      type: 'string',
-      required: true,
+    code     : {
+      type      : 'string',
+      required  : true,
       defaultsTo: function () {
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -30,12 +30,12 @@ module.exports = {
       }
     },
     codeCount: {
-      type: "integer",
+      type      : "integer",
       defaultsTo: 0
     },
-    uploads: {
+    uploads  : {
       collection: 'uploader',
-      via: 'sealedBy'
+      via       : 'sealedBy'
     }
   },
   /*
@@ -43,56 +43,22 @@ module.exports = {
    * @options  {object} Email address of the user to create
    * @param  	{Function} cb
    */
-  verify: function (opts, cb) {
+  verify    : function (opts, cb) {
 
     // Save sending user
-    Seal.create({
-        email: opts.email
-      },
+    Seal.create({email: opts.email},
       function (err, record) {
-        if (err) return cb(err, {
-          record: record
+        if (err) return cb(err, {record: record});
+
+        return cb(err, {
+          record     : record,
+          verify_html: verify_html,
+          verify_txt : verify_txt,
+          data       : data,
+          body       : body
         });
 
-        sails.renderView('email_templates/verify_html', {
-          code: record.code
-        }, function (err, verify_html) {
 
-          if (err) return cb(err, {
-            record: record,
-            verify_html: verify_html
-          });
-
-          sails.renderView('email_templates/verify_txt', {
-            code: record.code
-          }, function (err, verify_txt) {
-
-            if (err) return cb(err, {
-              record: record,
-              verify_html: verify_html,
-              verify_txt: verify_txt
-            });
-
-            var message = {
-              from: 'support@imtechgraphics.com',
-              to: record.email,
-              subject: 'ImlinkUp verification code',
-              text: verify_txt,
-              html: verify_html
-            };
-
-            //Send Email
-            mailgun.messages().send(message, function (err, body) {
-              return cb(err, {
-                record: record,
-                verify_html: verify_html,
-                verify_txt: verify_txt,
-                data: data,
-                body: body
-              });
-            });
-          });
-        });
       });
   }
 
