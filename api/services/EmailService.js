@@ -50,9 +50,11 @@ module.exports = {
 
       sails.renderView('email_templates/confirmation_txt', {record: record}, function (err, verify_txt) {
 
+        var message;
+
         if (err) { return cb(err, {err: err, record: record, verify_html: verify_html, verify_txt: verify_txt}); }
 
-        var message = {
+        message = {
           from   : 'support@imtechgraphics.com',
           to     : record.sealedBy.email,
           subject: 'ImlinkUp Upload Confirmation',
@@ -65,7 +67,7 @@ module.exports = {
 
           if (err) { return {err: err, body: body}; }
 
-          console.log("Confirmation email sent!")
+          console.log("Confirmation email sent!");
 
           cb(err, record);
         });

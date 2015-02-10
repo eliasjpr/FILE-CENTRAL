@@ -18,7 +18,7 @@ module.exports = {
    ***************************************************************************/
 
   models: {
-    connection: 'stagingMysql'
+    connection: 'remoteMysql'
   }
 
 

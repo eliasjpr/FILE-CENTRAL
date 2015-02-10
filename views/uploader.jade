@@ -8,17 +8,17 @@ html(lang="en")
 		link(rel="stylesheet" type="text/css" href="/styles/style.css")
 		script(src="https://code.jquery.com/jquery-2.1.3.min.js")
 		script(src="/js/dependencies/sails.io.js")
-	
+
 	body
-	
-		form(class="sign-up" method="post" action="/uploader/upload" enctype="multipart/form-data" )
+
+form(class="sign-up" method="post" action="/bucket/upload" enctype="multipart/form-data" )
 			input(type="hidden" name="sessionUUID" value="#{sessionUUID}")
-			
+
 			h1.sign-up-title
 				i.fa.fa-cloud-upload
-				span  ImlinkUp 
-			h2 
-				i.fa.fa-share-alt 
+span  ImlinkUp
+h2
+  i.fa.fa-share-alt
 				span &nbsp;Send files to Imtech
 			br
 			div#send-to-imlink
@@ -27,37 +27,37 @@ html(lang="en")
 				input(type="text" name="company" class="sign-up-input" placeholder="Enter Your Company" required="required")
 				input(type="text" name="job" class="sign-up-input" placeholder="Job #" required="required")
 				textarea(name="comments" class="sign-up-input" placeholder="Comments" style="width:89%")
-							
-				
-			div#upload-progress
-				h3 Upload Stats	
-				
-				div.meter.red
+
+
+div#upload-progress
+  h3 Upload Stats
+
+  div.meter.red
 					span#progress-bar
-					
+
 				span#fileName
-				span#percent 
-				span#totalSize 
-				span#totalUploaded 
+  span#percent
+  span#totalSize
+  span#totalUploaded
 				span#duration
 				span#kbspeed
 				span#mbspeed
-				
-			
-			span.file-wrapper
+
+
+span.file-wrapper
 				input(type="file" id="files" name="files" multiple="multiple"  required="required" )
 				span.file-button Select files
 			br
 			br
-			
-			
-			button(type="submit" class="sign-up-button")
-				span  SEND  
-				i.fa.fa-mail-forward 				
+
+
+button(type="submit" class="sign-up-button")
+  span  SEND
+  i.fa.fa-mail-forward
 		script.
 			var sessionUUID = "#{sessionUUID}";
 		script(src="/js/uploader.js")
 
-			
-			
-		
+
+
+

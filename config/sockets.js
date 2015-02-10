@@ -24,7 +24,12 @@ module.exports.sockets = {
   onConnect: function(session, socket) {
 
     // By default, do nothing.
-	
+    console.log(
+      '\n===================================\n',
+      'Connected to websckets',
+      '\n===================================\n',
+      'Session: ', session, '\n',
+      'Socket: ', socket);
   },
 
 
@@ -183,6 +188,6 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
 
-  origins: '*:*',
+  origins: '*:*'
 
 };

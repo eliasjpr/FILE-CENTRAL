@@ -16,7 +16,7 @@ module.exports = {
    * Set the default database connection for models in the production        *
    * environment (see config/connections.js and config/models.js )           *
    ***************************************************************************/
-  models: { connection: 'stagingMysql' },
+  models: {connection: 'remoteMysql'},
 
   /***************************************************************************
    * Set the port in the production environment to 80                        *
@@ -27,7 +27,7 @@ module.exports = {
   /***************************************************************************
    * Set the log level in production environment to "silent"                 *
    ***************************************************************************/
-
+  migrate: 'alter',
   // log: {
   level: "silent"
   // }

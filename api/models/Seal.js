@@ -23,18 +23,20 @@ module.exports = {
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 6; i++)
           text += possible.charAt(Math.floor(Math.random() * possible.length));
 
         return text;
       }
     },
+
     codeCount: {
       type      : "integer",
-      defaultsTo: 0
+      defaultsTo: 0,
+      max       : 1
     },
-    uploads  : {
-      collection: 'uploader',
+    buckets  : {
+      collection: 'bucket',
       via       : 'sealedBy'
     }
   },
@@ -46,8 +48,7 @@ module.exports = {
   verify    : function (opts, cb) {
 
     // Save sending user
-    Seal.create({email: opts.email},
-      function (err, record) {
+    Seal.create({email: opts.email}, function (err, record) {
         if (err) return cb(err, {record: record});
 
         return cb(err, {
@@ -57,8 +58,17 @@ module.exports = {
           data       : data,
           body       : body
         });
+    });
+  },
 
+  isValid: function (opts, cb) {
+    Seal.findOne(opts.id)
+      .exec(function (err, seal) {
+        if (err) {
+          return cb(err, null)
+        }
 
+        return cb(null, (seal.codeCount == 0), seal)
       });
   }
 

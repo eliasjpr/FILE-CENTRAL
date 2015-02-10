@@ -2,11 +2,11 @@ $(document).ready(function(){
 	var sessionId = "";
 	$('#progress-bar').css({width: "0%"});
 	$('#upload-progress').hide();
-	
+
 	$('#files').on('change',function(){
         $('#files-list').append( $('<li />') );
     });
-	
+
 	$('a,button').on('click', function() {
 		window.onbeforeunload = null;
 	});
@@ -15,19 +15,19 @@ $(document).ready(function(){
 var isUploading= false;
 
 io.socket.on( sessionUUID, function(msg) {
-	
-	
-	isUploading = true;
+
+
+  isUploading = true;
 	$('#upload-progress').show();
 	$('.sign-up.button').html('Uploading...').attr('disabled', 'disabled');
-	document.getElementById('percent').innerHTML 		='<b>' + msg.total + '%</b> uploaded';
+  document.getElementById('percent').innerHTML = '<b>' + msg.percent + '%</b> uploaded';
 	document.getElementById('totalSize').innerHTML		='<b>File Size</b> ' + getReadableFileSizeString(msg.totalSize) ;
 	document.getElementById('totalUploaded').innerHTML	='<b>Bytes Uploaded</b> ' + getReadableFileSizeString(msg.totalUploaded) + ' uploaded';
 	document.getElementById('duration').innerHTML		='<b>Duration</b> ' +  secsToTimeFormat(msg.duration);
 	document.getElementById('kbspeed').innerHTML		='<b>Speed in Kb</b> ' + msg.speedKbps + ' Kb/s';
 	document.getElementById('mbspeed').innerHTML		='<b>Speed in Mb</b> ' + msg.speedMbps + ' Mb/s';
 	document.getElementById('fileName').innerHTML		='<b>Uploading file</b> ' + msg.fileName ;
-	
+
 	$('#progress-bar').css({width: msg.total + '%'});
 });
 
@@ -53,15 +53,12 @@ function getReadableFileSizeString(fileSizeInBytes) {
     } while (fileSizeInBytes > 1024);
 
     return Math.max(fileSizeInBytes, 0.1).toFixed(1) + byteUnits[i];
-};
-
-
+}
 window.onbeforeunload = confirmExit;
-function confirmExit()
-{	
+function confirmExit() {
 	var msg = '';
 	if(isUploading){
-		msg = "Oops! It looks like you're uploading a file. \n Are you sure you want to quit the upload?" 
+    msg = "Oops! It looks like you're uploading a file. \n Are you sure you want to quit the upload?"
 	}
 	return msg;
 }

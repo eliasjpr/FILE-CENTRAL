@@ -45,8 +45,8 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
-  'get /:code': {
-    controller: 'UploaderController',
+  'get /:id/:code': {
+    controller: 'BucketController',
     action: 'index',
     skipAssets: true
   }
